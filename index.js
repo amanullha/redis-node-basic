@@ -45,7 +45,7 @@ app.get('/', async (req, res) => {
 app.post('/user/:id', async (req, res) => {
     const id = req.params.id;
     const cachedUser = await client.get(`user${id}`);
-    if (cachedUser) {
+    if (cachedUser && typeof (cachedUser) == 'string') {
         res.json({
             message: "user already added to redis"
         })
@@ -83,7 +83,7 @@ app.post('/user/:id', async (req, res) => {
 app.get('/user/:id', async (req, res) => {
     const id = req.params.id;
     const cachedUser = await client.get(`user${id}`);
-    if (cachedUser) {
+    if (cachedUser && typeof (cachedUser) == 'string') {
         res.json(
             {
                 message: "response from redis",
