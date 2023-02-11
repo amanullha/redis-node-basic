@@ -1,6 +1,16 @@
 const redis = require("redis");
-const url = 'redis://alice:foobared@awesome.redis.server:6380'
-const client = redis.createClient(url);
+const url = 'redis://:password@0.0.0.0:6379'
+// redis[s]://[[username][:password]@][host][:port][/db-number]
+
+const client = redis.createClient(
+    {
+        host: '127.0.0.1',
+        port: '6379',
+        //username: 'username',
+        password: 'password'
+    }
+
+);
 
 (async () => {
     client.on('error', err => console.log('Redis Client Error', err));
@@ -16,8 +26,8 @@ async function test() {
     // await client.HSET('key', 'field', 'value');
     // const val = await client.HGETALL('key');
     // console.log(val.field);
-    const key = "k1";
-    const value = "aman";
+    const key = "user1";
+    const value = "key value is aman";
     await client.setEx(key, 10, value);
     const val = await client.get(key);
     console.log(val);
@@ -53,4 +63,4 @@ async function test2() {
         });
     console.log(x);
 }
-test2();
+// test2();
