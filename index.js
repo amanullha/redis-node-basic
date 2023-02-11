@@ -13,13 +13,14 @@ const client = redis.createClient(
 );
 
 (async () => {
-    client.on('error', err => console.log('Redis Client Error', err));
+    // client.on('error', err => console.log('Redis Client Error', err));
+    await client.connect();
 })();
 
 
 
 async function test() {
-    await client.connect();
+
 
     // await client.set('1212', 60, '121212');
     // const value = await client.get('key');
@@ -63,4 +64,4 @@ async function test2() {
         });
     console.log(x);
 }
-// test2();
+test2();
