@@ -14,29 +14,69 @@ client.get = util.promisify(client.get)
 
 app.post('/', async (req, res) => {
     const { key, value } = req.body;
-    const r = await client.set(key, value);
-    res.send({ r })
+    try {
+        const r = await client.set(key, value);
+        if (r) {
+            res.send({ r })
+        }
+        else {
+            res.send({ message: "data not found" })
+        }
+    } catch (error) {
+
+    }
 })
 app.get('/', async (req, res) => {
     const { key } = req.body;
-    const data = await client.get(key);
-    res.send({ data: data })
+    try {
+        const data = await client.get(key);
+        if (data) {
+            res.send({ data: data })
+        } else {
+            res.send({ message: "data not found!" })
+        }
+
+
+    } catch (error) {
+        res.send({ error: error })
+    }
 })
 
 app.post('/user/:id', async (req, res) => {
     const id = req.params.id;
     const cachedUser = await client.get(`user${id}`);
     if (cachedUser) {
-        return res.json({ message: "user already added to redis" })
+        res.json({
+            message: "user already added to redis"
+        })
     }
     else {
-        const response = await axios({
-            url: `https://jsonplaceholder.typicode.com/users/${id}`,
-            method: "get",
-        });
-        const user = response?.data;
-        const r = await client.set(`user${id}`, JSON.stringify(user))
-        res.json({ response: r, user: user, message: "user added to redis" })
+        try {
+            const response = await axios({
+                url: `https://jsonplaceholder.typicode.com/users/${id}`,
+                method: "get",
+            });
+            const user = response?.data;
+            if (user) {
+                const r = await client.set(`user${id}`, JSON.stringify(user))
+                res.json({
+                    response: r,
+                    user: user,
+                    message: "user added to redis"
+                })
+            }
+            else {
+                res.send({
+                    message: "Data not found"
+                })
+            }
+
+        } catch (error) {
+            res.send({
+                message: "Data not found",
+                error: error
+            })
+        }
     }
 
 })
@@ -44,17 +84,37 @@ app.get('/user/:id', async (req, res) => {
     const id = req.params.id;
     const cachedUser = await client.get(`user${id}`);
     if (cachedUser) {
-        return res.json({ message: "response from redis", user: JSON.parse(cachedUser) })
+        res.json(
+            {
+                message: "response from redis",
+                user: JSON.parse(cachedUser)
+            }
+        )
     }
     else {
-        const response = await axios({
-            url: `https://jsonplaceholder.typicode.com/users/${id}`,
-            method: "get",
-        });
-        const user = response?.data;
+        try {
+            const response = await axios({
+                url: `https://jsonplaceholder.typicode.com/users/${id}`,
+                method: "get",
+            });
+            const user = response?.data;
+            if (user) {
 
-        const r = await client.set(`user${id}`, JSON.stringify(user))
-        res.json({ response: r, user: user })
+                const r = await client.set(`user${id}`, JSON.stringify(user))
+                res.json({
+                    response: r,
+                    user: user
+                })
+            }
+            else {
+                res.send({ message: "data not found!" })
+            }
+        } catch (error) {
+            res.send({
+                message: "data not found!",
+                error: error
+            })
+        }
     }
 
 })
